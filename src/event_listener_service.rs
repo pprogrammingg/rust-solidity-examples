@@ -2,10 +2,7 @@
 
 use ethers::prelude::*;
 use crate::utils::{init_env, get_env_var};
-use ethers::core::{
-        abi::AbiDecode,
-        types::{BlockNumber, Filter},
-    };
+use ethers::core::types::BlockNumber;
 use std::sync::Arc;
 
 
@@ -21,27 +18,24 @@ pub async fn start_event_listener() -> Result<(), Box<dyn std::error::Error>> {
 
     // setup provider
     let wss_url = format!("{}/{}", get_env_var("INFURA_WS_URL", ""), get_env_var("INFURA_API_KEY", ""));
-    let client =  Provider::<Ws>::connect(wss_url).await?;
+    let client =  Provider::<Ws>::connect(wss_url).await.unwrap();
     
     // setup client
-    let client = Arc::new(client.clone());
+    let client = Arc::new(client);
 
+    // get last block number
     let last_block = client.get_block(BlockNumber::Latest).await?.unwrap().number.unwrap();
     println!("last_block is: {last_block}");   
 
-    // filter on last 10 blocks
-    let updated_message_filter =
-        Filter::new().from_block(last_block - 10).event("UpdatedMessages(string,string)");
+    // get UpdatedMessages event
+    let event = Contract::event_of_type::<UpdatedMessages>(client);
 
-    let mut stream = client.subscribe_logs(&updated_message_filter).await?.take(2);
+    // Set up an stream of events, read them and log them
+    let mut stream = event.subscribe_with_meta().await?;
 
-    while let Some(log) = stream.next().await {
-        println!(
-            "block: {:?}, tx: {:?}, data: {:?}",
-            log.block_number,
-            log.transaction_hash,
-            String::decode(log.data)
-        );
+    while let Some(Ok((log, meta))) = stream.next().await {
+        println!("log is {log:?}");
+        println!("log meta is {meta:?}")
     }
     Ok(())
 }

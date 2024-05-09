@@ -33,7 +33,7 @@ pub async fn read_write_data() -> Result<(), Box<dyn std::error::Error>> {
     println!("First time message read from contract ====>  {}", msg);
 
     // update the mesg
-    let tx = contract.update("New new 2".to_owned()).send().await?.await?;
+    let tx = contract.update("New 3 msg".to_owned()).send().await?.await?;
     println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
 
 
