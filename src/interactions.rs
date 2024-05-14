@@ -3,7 +3,6 @@ use crate::utils::{init_env, get_env_var};
 use ethers::prelude::*;
 use ethers::providers::{Provider, Http};
 use std::{env, sync::Arc};
-use serde_json;
 
 pub async fn read_write_data() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize dotenv to load environment variables
@@ -30,16 +29,17 @@ pub async fn read_write_data() -> Result<(), Box<dyn std::error::Error>> {
 
     // first time read msg
     let msg = contract.message().call().await.unwrap();
-    println!("First time message read from contract ====>  {}", msg);
+    println!("\n\nFirst time message read from contract ====>  {}", msg);
 
     // update the mesg
-    let tx = contract.update("New 3 msg".to_owned()).send().await?.await?;
-    println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
+    let new_message = "new message from local machien".to_owned(); 
+    let _tx = contract.update(new_message).send().await?.await?;
+    // println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
 
 
     // second time read msg
     let msg2 = contract.message().call().await.unwrap();
-    println!("Second time message read from contract ====>  {}", msg2);
+    println!("\n\nSecond time message read from contract ====>  {}", msg2);
 
     Ok(())
 }

@@ -34,8 +34,8 @@ pub async fn start_event_listener() -> Result<(), Box<dyn std::error::Error>> {
     let mut stream = event.subscribe_with_meta().await?;
 
     while let Some(Ok((log, meta))) = stream.next().await {
-        println!("log is {log:?}");
-        println!("log meta is {meta:?}")
+        println!("\n\nlog is {log:?}");
+        println!("\n\nlog meta is {meta:?}")
     }
     Ok(())
 }
